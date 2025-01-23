@@ -1,0 +1,34 @@
+# Diretórios de ambiente virtual
+.venv/
+
+# Arquivos de configuração e segredos
+.secrets.toml
+
+# Arquivos de cache e compilados pelo Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs das APIs
+logs/
+*.log
+
+# Arquivos temporários e backups
+*.bak
+*.tmp
+*.swp
+
+# Configurações específicas de IDE
+.idea/
+
+# Dependências geradas por Docker e contêineres
+docker-compose.override.yaml
+*.env
+
+# Arquivos de teste temporário
+test-results/
+
+# Artefatos de build
+dist/
+build/
