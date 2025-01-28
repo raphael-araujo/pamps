@@ -32,3 +32,4 @@ test-results/
 # Artefatos de build
 dist/
 build/
+*.egg-info
