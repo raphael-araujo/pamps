@@ -1,4 +1,7 @@
 from typing import Optional
+
+from pydantic import BaseModel
+# from pydantic. import BaseModel
 from sqlmodel import Field, SQLModel
 
 from pamps.security import HashedPassword
@@ -13,3 +16,21 @@ class User(SQLModel, table=True):
     avatar: Optional[str] = None
     bio: Optional[str] = None
     password: HashedPassword
+
+
+class UserResponse(BaseModel):
+    """Serializer for User Response"""
+
+    username: str
+    avatar: Optional[str] = None
+    bio: Optional[str] = None
+
+
+class UserRequest(BaseModel):
+    """Serializer for User request payload"""
+
+    email: str
+    username: str
+    password: str
+    avatar: Optional[str] = None
+    bio: Optional[str] = None
