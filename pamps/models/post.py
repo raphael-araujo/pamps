@@ -55,7 +55,7 @@ class PostResponseWithReplies(PostResponse):
 class PostRequest(BaseModel):
     """Serializer for Post request payload"""
 
-    parent_id: Optional[int]
+    parent_id: Optional[int] = None
     text: str
 
     class Config:
