@@ -27,3 +27,15 @@ services:
       - POSTGRES_DBS=pamps, pamps_test
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+  pg_admin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4
+    ports:
+      - "15432:80"
+    environment:
+      - GUNICORN_THREADS=1
+      - PGADMIN_DEFAULT_EMAIL=pamps@email.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+    depends_on:
+      - db
+      - api
