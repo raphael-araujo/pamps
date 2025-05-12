@@ -1,8 +1,14 @@
-from fastapi import APIRouter
+from typing import List
+
+from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
 from sqlmodel import Session, select
 
+from pamps.auth import AuthenticatedUser
 from pamps.db import ActiveSession
+from pamps.models import Social
+from pamps.models.post import Post
+from pamps.models.social import SocialResponse, TimelineResponse
 from pamps.models.user import User, UserRequest, UserResponse
 
 router = APIRouter()
@@ -34,3 +40,29 @@ async def create_user(*, session: Session = ActiveSession, user: UserRequest):
     session.commit()
     session.refresh(db_user)
     return db_user
+
+
+@router.post("/follow/{user_id}", response_model=SocialResponse, status_code=status.HTTP_201_CREATED)
+def follow(*, user_id: int, session: Session = ActiveSession, user: User = AuthenticatedUser):
+    """Follow user"""
+    if user_id == user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You cannot follow yourself")
+
+    db_social = Social(from_id=user.id, to_id=user_id)
+    session.add(db_social)
+    session.commit()
+    session.refresh(db_social)
+    return db_social
+
+
+@router.get("/timeline", response_model=List[TimelineResponse])
+async def timeline(*, session: Session = ActiveSession, user: User = AuthenticatedUser):
+    """Timeline from authenticated user"""
+    following_ids = session.exec(
+        select(Social.to_id).where(Social.from_id == user.id)
+    ).all()
+
+    posts = session.exec(
+        select(Post).where(Post.user_id.in_(following_ids)).order_by(Post.date.desc())
+    ).all()
+    return posts
