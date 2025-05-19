@@ -1,11 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from pamps.auth import AuthenticatedUser
 from pamps.db import ActiveSession
+from pamps.models.like import LikeResponse, Like
 from pamps.models.post import (
     Post,
     PostRequest,
@@ -56,3 +58,18 @@ async def create_post(*, session: Session = ActiveSession, user: User = Authenti
     session.commit()
     session.refresh(db_post)
     return db_post
+
+
+@router.post("/{post_id}/like/", response_model=LikeResponse, status_code=status.HTTP_201_CREATED)
+async def like(*, post_id: int, session: Session = ActiveSession, user: User = AuthenticatedUser):
+    """Like a post"""
+    query = select(Like).where(Like.post_id == post_id).where(Like.user_id == user.id)
+    like = session.exec(query).first()
+    if like:
+        raise HTTPException(status_code=400, detail="Post already liked")
+
+    db_like = Like(user_id=user.id, post_id=post_id)
+    session.add(db_like)
+    session.commit()
+    session.refresh(db_like)
+    return db_like
