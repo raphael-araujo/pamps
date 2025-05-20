@@ -73,3 +73,22 @@ async def like(*, post_id: int, session: Session = ActiveSession, user: User = A
     session.commit()
     session.refresh(db_like)
     return db_like
+
+
+@router.get("/likes/{username}/", response_model=List[PostResponse])
+async def liked_posts(*, session: Session = ActiveSession, username: str):
+    """Posts liked by user"""
+    user = session.exec(
+        select(User).where(User.username == username)
+    ).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    liked_posts_ids = session.exec(
+        select(Like.post_id).where(Like.user_id == user.id)
+    ).all()
+
+    posts = session.exec(
+        select(Post).where(Post.id.in_(liked_posts_ids)).order_by(Post.date.desc())
+    ).all()
+    return posts
