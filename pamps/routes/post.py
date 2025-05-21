@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
-from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from pamps.auth import AuthenticatedUser
@@ -63,6 +62,12 @@ async def create_post(*, session: Session = ActiveSession, user: User = Authenti
 @router.post("/{post_id}/like/", response_model=LikeResponse, status_code=status.HTTP_201_CREATED)
 async def like(*, post_id: int, session: Session = ActiveSession, user: User = AuthenticatedUser):
     """Like a post"""
+    post = session.exec(
+        select(Post).where(Post.id == post_id)
+    ).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
     query = select(Like).where(Like.post_id == post_id).where(Like.user_id == user.id)
     like = session.exec(query).first()
     if like:
