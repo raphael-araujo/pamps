@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, TYPE_CHECKING
 
@@ -15,3 +16,11 @@ class Like(SQLModel, table=True):
 
     user: Optional["User"] = Relationship(back_populates="likes")
     post: Optional["Post"] = Relationship(back_populates="likes")
+
+
+class LikeResponse(BaseModel):
+    """Serializer for Like Response"""
+
+    id: int
+    user_id: int
+    post_id: int
