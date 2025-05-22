@@ -6,6 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from pamps.models.user import User
+    from pamps.models.like import Like
 
 
 class Post(SQLModel, table=True):
@@ -29,6 +30,7 @@ class Post(SQLModel, table=True):
     )
     # This lists all children to this post
     replies: list["Post"] = Relationship(back_populates="parent")
+    likes: list["Like"] = Relationship(back_populates="post")
 
     def __lt__(self, other):
         """This enables post.replies.sort() to sort by date"""

@@ -1,5 +1,7 @@
 from sqlmodel import SQLModel
 from .user import User
 from .post import Post
+from .social import Social
+from .like import Like
 
-__all__ = ["User", "SQLModel", "Post"]
+__all__ = ["SQLModel", "User", "Post", "Social", "Like"]
