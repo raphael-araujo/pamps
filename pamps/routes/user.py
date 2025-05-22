@@ -48,6 +48,18 @@ def follow(*, user_id: int, session: Session = ActiveSession, user: User = Authe
     if user_id == user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You cannot follow yourself")
 
+    user_to_follow = session.exec(
+        select(User).where(User.id == user_id)
+    ).first()
+    if not user_to_follow:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    social = session.exec(
+        select(Social).where(Social.from_id == user.id).where(Social.to_id == user_id)
+    ).first()
+    if social:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You already follow this user")
+
     db_social = Social(from_id=user.id, to_id=user_id)
     session.add(db_social)
     session.commit()
