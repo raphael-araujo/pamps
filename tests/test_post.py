@@ -110,3 +110,20 @@ def test_like_route_with_post_already_liked(api_client, api_client_user1):
     response = api_client_user1.post(f"/post/2/like/")
     assert response.status_code == 400
     assert "Post already liked" in response.json()["detail"]
+
+
+@pytest.mark.order(4)
+def test_liked_posts_route(api_client):
+    response = api_client.get("/post/likes/user1/")
+    assert response.status_code == 200
+    result = response.json()
+    assert result[0]["id"] == 2
+    assert result[0]["text"] == "hello test 2"
+    assert result[0]["user_id"] == 1
+
+
+@pytest.mark.order(4)
+def test_liked_posts_route_with_non_existent_username(api_client):
+    response = api_client.get("/post/likes/user000/")
+    assert response.status_code == 404
+    assert "User not found" in response.json()["detail"]
